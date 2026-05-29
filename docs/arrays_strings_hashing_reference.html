@@ -1,0 +1,426 @@
+
+<style>
+:root { --gap: 14px; }
+.section { margin-bottom: 2rem; }
+.section-title { font-size: 15px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 10px; padding-bottom: 6px; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--gap); }
+.card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 14px 16px; }
+.card-title { font-size: 13px; font-weight: 500; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+.badge { font-size: 11px; padding: 2px 8px; border-radius: 4px; }
+.badge-blue { background: #E6F1FB; color: #0C447C; }
+.badge-teal { background: #E1F5EE; color: #085041; }
+.badge-amber { background: #FAEEDA; color: #633806; }
+.badge-red { background: #FCEBEB; color: #791F1F; }
+.badge-purple { background: #EEEDFE; color: #3C3489; }
+code { font-family: var(--font-mono); font-size: 12px; background: var(--color-background-secondary); padding: 1px 5px; border-radius: 4px; }
+pre { font-family: var(--font-mono); font-size: 12px; background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: 8px; padding: 10px 12px; margin: 8px 0 0; overflow-x: auto; line-height: 1.6; color: var(--color-text-primary); }
+.trap { background: var(--color-background-danger); border: 0.5px solid var(--color-border-danger, #F09595); border-radius: 8px; padding: 10px 12px; margin-top: 8px; font-size: 12px; color: var(--color-text-danger); }
+.trap strong { font-weight: 500; }
+.pill-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.pill { font-size: 12px; padding: 4px 10px; border-radius: 20px; background: var(--color-background-secondary); color: var(--color-text-secondary); border: 0.5px solid var(--color-border-tertiary); cursor: pointer; transition: background 0.15s; }
+.pill:hover { background: var(--color-background-tertiary); }
+.complexity-row { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+.cx { font-size: 12px; padding: 3px 8px; border-radius: 4px; border: 0.5px solid var(--color-border-tertiary); }
+.cx-good { background: #EAF3DE; color: #27500A; border-color: #C0DD97; }
+.cx-bad { background: #FCEBEB; color: #791F1F; border-color: #F7C1C1; }
+.tab-row { display: flex; gap: 4px; margin-bottom: 12px; flex-wrap: wrap; }
+.tab { font-size: 13px; padding: 6px 14px; border-radius: 6px; border: 0.5px solid var(--color-border-tertiary); background: var(--color-background-secondary); cursor: pointer; color: var(--color-text-secondary); transition: all 0.15s; }
+.tab.active { background: var(--color-background-primary); color: var(--color-text-primary); border-color: var(--color-border-primary); font-weight: 500; }
+.panel { display: none; }
+.panel.active { display: block; }
+</style>
+
+<div style="padding: 1rem 0">
+  <h2 class="sr-only">Arrays, strings, and hashing — Python OA reference</h2>
+
+  <div class="tab-row">
+    <button class="tab active" onclick="showTab('tools')">Core tools</button>
+    <button class="tab" onclick="showTab('patterns')">Patterns</button>
+    <button class="tab" onclick="showTab('traps')">Common traps</button>
+    <button class="tab" onclick="showTab('problems')">Problem types</button>
+  </div>
+
+  <!-- TOOLS -->
+  <div class="panel active" id="tab-tools">
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-title"><span class="badge badge-blue">Counter</span> frequency map</div>
+        <pre>from collections import Counter
+
+c = Counter("banana")   # {'a':3,'n':2,'b':1}
+c = Counter([1,1,2,3])  # {1:2, 2:1, 3:1}
+
+c.most_common(2)        # [(elem, count), ...]
+c['z']                  # 0 — never KeyError
+
+# combine
+a - b   # subtract counts (drops 0s)
+a + b   # merge</pre>
+        <div class="pill-row">
+          <span class="pill" onclick="sendPrompt('Give me a Counter example problem')">example problem ↗</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="badge badge-teal">defaultdict</span> auto-init</div>
+        <pre>from collections import defaultdict
+
+# group items
+groups = defaultdict(list)
+for k, v in pairs:
+    groups[k].append(v)
+
+# count (prefer Counter for pure counts)
+freq = defaultdict(int)
+for ch in s:
+    freq[ch] += 1
+
+# set-based (e.g. anagram groups)
+d = defaultdict(set)</pre>
+        <div class="pill-row">
+          <span class="pill" onclick="sendPrompt('When should I use defaultdict vs Counter?')">vs Counter ↗</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="badge badge-purple">set / dict</span> O(1) lookup</div>
+        <pre>seen = set()
+seen.add(x)
+x in seen          # O(1) — use this
+
+# NOT this:
+x in my_list       # O(n) — TLE trap!
+
+# dict tricks
+d = {}
+d.get(key, 0)      # safe get with default
+d.setdefault(k,[]).append(v)
+
+# two-sum pattern
+comp = target - num
+if comp in d:      # O(1)</pre>
+        <div class="complexity-row">
+          <span class="cx cx-good">lookup O(1)</span>
+          <span class="cx cx-bad">list lookup O(n)</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="badge badge-amber">sorted / sort</span> key tricks</div>
+        <pre># sort by length, then alpha
+sorted(words, key=lambda w: (len(w), w))
+
+# sort tuples by second element
+sorted(pairs, key=lambda x: x[1])
+
+# in-place vs new list
+arr.sort()           # mutates, O(n log n)
+new = sorted(arr)    # returns new list
+
+# group anagrams: canonical key
+key = tuple(sorted(word))  # "eat","tea","ate" → same key</pre>
+        <div class="pill-row">
+          <span class="pill" onclick="sendPrompt('Show me the group anagrams pattern in Python')">group anagrams ↗</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="badge badge-blue">enumerate / zip</span></div>
+        <pre># enumerate — index + value
+for i, val in enumerate(arr):
+    ...
+for i, ch in enumerate(s):
+    ...
+
+# zip — pair two sequences
+for a, b in zip(arr1, arr2):
+    ...
+
+# compare chars at same position
+for c1, c2 in zip(s1, s2):
+    if c1 != c2: diff += 1
+
+# matrix row + index
+for r, row in enumerate(grid):
+    for c, val in enumerate(row):</pre>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="badge badge-teal">String ops</span> know these cold</div>
+        <pre>s.split()          # split on whitespace
+s.split(',')       # split on delimiter
+''.join(lst)       # list → string (fast)
+s.strip()          # remove whitespace
+
+# ord / chr for char math
+ord('a')           # 97
+ord(c) - ord('a')  # 0-25 for a-z
+
+# slicing
+s[i:j]             # substring [i, j)
+s[::-1]            # reverse
+
+# checking
+s.isalnum()  s.lower()  s.upper()</pre>
+        <div class="pill-row">
+          <span class="pill" onclick="sendPrompt('When would I use ord() in a coding problem?')">ord() use cases ↗</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PATTERNS -->
+  <div class="panel" id="tab-patterns">
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-title"><span class="badge badge-blue">Two-sum / complement</span></div>
+        <pre>def two_sum(nums, target):
+    seen = {}           # val → index
+    for i, n in enumerate(nums):
+        comp = target - n
+        if comp in seen:
+            return [seen[comp], i]
+        seen[n] = i
+    return []</pre>
+        <div class="complexity-row">
+          <span class="cx cx-good">O(n) time</span>
+          <span class="cx cx-good">O(n) space</span>
+          <span class="cx cx-bad">naive O(n²)</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="badge badge-teal">Sliding window — fixed</span></div>
+        <pre># max sum of k-length subarray
+def max_sum_k(arr, k):
+    window = sum(arr[:k])
+    best = window
+    for i in range(k, len(arr)):
+        window += arr[i] - arr[i-k]
+        best = max(best, window)
+    return best</pre>
+        <div class="complexity-row">
+          <span class="cx cx-good">O(n) time</span>
+          <span class="cx cx-bad">naive O(n·k)</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="badge badge-teal">Sliding window — variable</span></div>
+        <pre># longest substring with no repeats
+def length_of_longest(s):
+    seen = {}
+    left = best = 0
+    for right, ch in enumerate(s):
+        if ch in seen and seen[ch] >= left:
+            left = seen[ch] + 1
+        seen[ch] = right
+        best = max(best, right - left + 1)
+    return best</pre>
+        <div class="pill-row">
+          <span class="pill" onclick="sendPrompt('Walk me through the variable sliding window pattern')">walk me through ↗</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="badge badge-purple">Prefix sum</span></div>
+        <pre># range sum query in O(1) after O(n) build
+prefix = [0] * (len(arr) + 1)
+for i, v in enumerate(arr):
+    prefix[i+1] = prefix[i] + v
+
+# sum of arr[l..r]
+range_sum = prefix[r+1] - prefix[l]
+
+# subarray sum = k (use dict)
+count = defaultdict(int)
+count[0] = 1
+total = ans = 0
+for n in nums:
+    total += n
+    ans += count[total - k]
+    count[total] += 1</pre>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="badge badge-amber">Anagram / character map</span></div>
+        <pre># check anagram: compare Counters
+Counter(s) == Counter(t)  # simplest
+
+# sliding window anagram (fixed k)
+def find_anagrams(s, p):
+    need = Counter(p)
+    window = Counter(s[:len(p)])
+    res = [0] if window == need else []
+    for i in range(len(p), len(s)):
+        window[s[i]] += 1
+        old = s[i - len(p)]
+        window[old] -= 1
+        if window[old] == 0:
+            del window[old]
+        if window == need:
+            res.append(i - len(p) + 1)
+    return res</pre>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="badge badge-red">Majority element / Boyer-Moore</span></div>
+        <pre># element appearing > n/2 times
+def majority(nums):
+    candidate, count = None, 0
+    for n in nums:
+        if count == 0:
+            candidate = n
+        count += 1 if n == candidate else -1
+    return candidate</pre>
+        <div class="complexity-row">
+          <span class="cx cx-good">O(n) time</span>
+          <span class="cx cx-good">O(1) space</span>
+        </div>
+        <div class="pill-row">
+          <span class="pill" onclick="sendPrompt('How does Boyer-Moore voting algorithm work?')">how it works ↗</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TRAPS -->
+  <div class="panel" id="tab-traps">
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-title"><i class="ti ti-alert-triangle" style="font-size:16px;color:#BA7517" aria-hidden="true"></i> <code>x in list</code> is O(n)</div>
+        <div class="trap"><strong>The trap:</strong> using a list as a lookup table feels natural but kills performance on large inputs.</div>
+        <pre># BAD — O(n) lookup → O(n²) total
+visited = []
+if x not in visited:  # scans entire list
+    visited.append(x)
+
+# GOOD — O(1) lookup
+visited = set()
+if x not in visited:
+    visited.add(x)</pre>
+      </div>
+      <div class="card">
+        <div class="card-title"><i class="ti ti-alert-triangle" style="font-size:16px;color:#BA7517" aria-hidden="true"></i> Mutable default arguments</div>
+        <div class="trap"><strong>The trap:</strong> <code>def f(arr=[])</code> shares the same list across all calls — state leaks between test cases.</div>
+        <pre># BAD
+def process(data=[]):
+    data.append(1)  # mutates shared default!
+
+# GOOD
+def process(data=None):
+    if data is None:
+        data = []</pre>
+      </div>
+      <div class="card">
+        <div class="card-title"><i class="ti ti-alert-triangle" style="font-size:16px;color:#BA7517" aria-hidden="true"></i> String concatenation in a loop</div>
+        <div class="trap"><strong>The trap:</strong> strings are immutable — <code>s += c</code> in a loop is O(n²) because it creates a new string each iteration.</div>
+        <pre># BAD — O(n²)
+result = ""
+for ch in chars:
+    result += ch
+
+# GOOD — O(n)
+result = []
+for ch in chars:
+    result.append(ch)
+return "".join(result)</pre>
+      </div>
+      <div class="card">
+        <div class="card-title"><i class="ti ti-alert-triangle" style="font-size:16px;color:#BA7517" aria-hidden="true"></i> Off-by-one in sliding window</div>
+        <div class="trap"><strong>The trap:</strong> window size is <code>right - left + 1</code>, not <code>right - left</code>. Easy to mis-count under time pressure.</div>
+        <pre># window size check
+window_size = right - left + 1
+
+# shrink when over budget
+while window_size > k:
+    left += 1
+    window_size = right - left + 1</pre>
+      </div>
+      <div class="card">
+        <div class="card-title"><i class="ti ti-alert-triangle" style="font-size:16px;color:#BA7517" aria-hidden="true"></i> Modifying dict while iterating</div>
+        <div class="trap"><strong>The trap:</strong> <code>for k in d: del d[k]</code> raises RuntimeError. Collect keys first.</div>
+        <pre># BAD
+for k in freq:
+    if freq[k] == 0:
+        del freq[k]   # RuntimeError!
+
+# GOOD
+to_delete = [k for k, v in freq.items() if v == 0]
+for k in to_delete:
+    del freq[k]
+
+# or use dict comprehension
+freq = {k: v for k, v in freq.items() if v > 0}</pre>
+      </div>
+      <div class="card">
+        <div class="card-title"><i class="ti ti-alert-triangle" style="font-size:16px;color:#BA7517" aria-hidden="true"></i> Using floats as dict keys</div>
+        <div class="trap"><strong>The trap:</strong> float arithmetic is imprecise — <code>0.1 + 0.2 != 0.3</code> — so float keys produce phantom misses.</div>
+        <pre># BAD — slope problem
+slopes = {}
+slope = (y2-y1)/(x2-x1)   # 0.30000...04
+slopes[slope] += 1
+
+# GOOD — use fraction or tuple
+from fractions import Fraction
+slope = Fraction(y2-y1, x2-x1)
+
+# or store as reduced (dy, dx) tuple
+from math import gcd
+g = gcd(dy, dx)
+slopes[(dy//g, dx//g)] += 1</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROBLEM TYPES -->
+  <div class="panel" id="tab-problems">
+    <div style="display:grid;gap:10px;">
+      <div class="card">
+        <div class="card-title"><span class="badge badge-blue">Frequency / existence</span> → use <code>Counter</code> or <code>set</code></div>
+        <div style="font-size:13px;color:var(--color-text-secondary);margin-top:4px;">Valid anagram, contains duplicate, first unique character, ransom note, intersection of two arrays</div>
+        <div class="pill-row">
+          <span class="pill" onclick="sendPrompt('Solve valid anagram in Python')">valid anagram ↗</span>
+          <span class="pill" onclick="sendPrompt('Solve contains duplicate in Python')">contains duplicate ↗</span>
+          <span class="pill" onclick="sendPrompt('Solve first unique character in Python')">first unique char ↗</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="badge badge-teal">Subarray sum / range query</span> → use prefix sum + dict</div>
+        <div style="font-size:13px;color:var(--color-text-secondary);margin-top:4px;">Subarray sum equals K, number of subarrays with sum divisible by K, longest subarray with sum ≤ target</div>
+        <div class="pill-row">
+          <span class="pill" onclick="sendPrompt('Solve subarray sum equals K in Python')">subarray sum = K ↗</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="badge badge-teal">Substring / subarray window</span> → sliding window</div>
+        <div style="font-size:13px;color:var(--color-text-secondary);margin-top:4px;">Longest substring without repeating chars, min window substring, max consecutive ones, fruit into baskets</div>
+        <div class="pill-row">
+          <span class="pill" onclick="sendPrompt('Solve min window substring in Python')">min window substring ↗</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="badge badge-purple">Pair / complement lookup</span> → dict of seen values</div>
+        <div style="font-size:13px;color:var(--color-text-secondary);margin-top:4px;">Two sum, four sum, 3 sum (sort + two pointer), pairs with given difference</div>
+        <div class="pill-row">
+          <span class="pill" onclick="sendPrompt('Solve 3Sum in Python step by step')">3Sum ↗</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="badge badge-amber">Grouping / bucketing</span> → <code>defaultdict</code></div>
+        <div style="font-size:13px;color:var(--color-text-secondary);margin-top:4px;">Group anagrams, top K frequent elements, sort characters by frequency, word pattern</div>
+        <div class="pill-row">
+          <span class="pill" onclick="sendPrompt('Solve group anagrams in Python')">group anagrams ↗</span>
+          <span class="pill" onclick="sendPrompt('Solve top K frequent elements in Python')">top K frequent ↗</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="badge badge-red">In-place / O(1) space</span> → index math or XOR</div>
+        <div style="font-size:13px;color:var(--color-text-secondary);margin-top:4px;">Find duplicate / missing (index as hash), majority element (Boyer-Moore), single number (XOR)</div>
+        <div class="pill-row">
+          <span class="pill" onclick="sendPrompt('Solve find the duplicate number in O(1) space Python')">find duplicate ↗</span>
+          <span class="pill" onclick="sendPrompt('Solve single number with XOR in Python')">XOR trick ↗</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showTab(id) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelector('[onclick="showTab(\'' + id + '\')"]').classList.add('active');
+  document.getElementById('tab-' + id).classList.add('active');
+}
+</script>
